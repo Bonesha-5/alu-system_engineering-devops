@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # 1-install_nginx_web_server
 # Install nginx web server and configure default page
 
