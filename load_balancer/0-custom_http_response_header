@@ -12,40 +12,42 @@ sudo apt-get install -y nginx
 
 # Create index page
 echo "Holberton School" | sudo tee /var/www/html/index.html
+sudo chmod 644 /var/www/html/index.html
 
 # Create custom 404 page
 echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
+sudo chmod 644 /var/www/html/404.html
 
-# Backup original config
 sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
 
-# Write new configuration
-sudo bash -c 'cat > /etc/nginx/sites-available/default <<EOF
+# Write new Nginx config
+sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOF'
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    
+
     root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-    
+    index index.html index.htm;
+
     server_name _;
-    
-    add_header X-Served-By \$hostname;
-    
+
+    # Custom header for all responses
+    add_header X-Served-By $hostname always;
+
     location / {
-        try_files \$uri \$uri/ =404;
+        try_files $uri $uri/ =404;
     }
-    
+
     location /redirect_me {
         return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
     }
-    
+
     error_page 404 /404.html;
     location = /404.html {
         internal;
     }
 }
-EOF'
+EOF
 
 # Test and restart
 sudo nginx -t
