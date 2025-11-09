@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 3-redirection
 # Configures Nginx to redirect /redirect_me (301 Moved Permanently)
+# and serve "Holberton School" at /
 
-# Exit immediately if a command fails
-set -e
+set -e  # Exit on error
 
 # Update & install nginx
 sudo apt-get update -y
@@ -12,8 +12,12 @@ sudo apt-get install nginx -y
 # Backup default configuration
 sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
 
-# Overwrite default config with redirect included
-sudo cat << EOF > /etc/nginx/sites-available/default
+# Ensure /var/www/html exists and create index.html
+sudo mkdir -p /var/www/html
+echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
+
+# Overwrite default Nginx server block with redirect included
+sudo tee /etc/nginx/sites-available/default > /dev/null << 'EOF'
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -24,7 +28,7 @@ server {
     server_name _;
 
     location / {
-        try_files \$uri \$uri/ =404;
+        try_files $uri $uri/ =404;
     }
 
     location /redirect_me {
